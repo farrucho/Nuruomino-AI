@@ -1,0 +1,6 @@
+L	L	S	2	3	3
+L	2	S	S	3	3
+L	3	3	S	3	I
+3	3	3	T	3	I
+L	L	L	T	T	I
+L	3	3	T	3	I
