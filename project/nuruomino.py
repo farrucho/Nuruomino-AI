@@ -46,37 +46,100 @@ class Board:
         """Devolve uma lista das regiões que fazem fronteira com a região enviada no argumento."""
 
         adjacent_list = []
-        blacklist = str(region)
+        regionChar = str(region)
         
-        for row in range(0,board.xlength):
-            for col in range(0,board.ylength):
-                if board.board[row][col] == blacklist:
+        for row in range(0,self.xlength):
+            for col in range(0,self.ylength):
+                if self.board[row][col] == regionChar:
                     adjacent_cells = []
 
                     if row > 0:
-                        adjacent_cells.append(board.board[row - 1][col])     # Up
-                    if row < board.xlength - 1:
-                        adjacent_cells.append(board.board[row + 1][col])     # Down
+                        adjacent_cells.append(self.board[row - 1][col])     # Up
+                    if row < self.xlength - 1:
+                        adjacent_cells.append(self.board[row + 1][col])     # Down
                     if col > 0:
-                        adjacent_cells.append(board.board[row][col - 1])     # Left
-                    if col < board.ylength - 1:
-                        adjacent_cells.append(board.board[row][col + 1])     # Right
+                        adjacent_cells.append(self.board[row][col - 1])     # Left
+                    if col < self.ylength - 1:
+                        adjacent_cells.append(self.board[row][col + 1])     # Right
 
                     for elem in adjacent_cells:
-                        if elem not in adjacent_list and elem not in blacklist: 
+                        if elem not in adjacent_list and elem not in regionChar: 
                             adjacent_list.append(elem) 
         
         return adjacent_list
     
     def adjacent_positions(self, row:int, col:int) -> list:
         """Devolve as posições adjacentes à região, em todas as direções, incluindo diagonais."""
-        #TODO
-        pass
+        
+        adjacent_positions_list = []
+        regionChar = str(self.board[row-1][col-1]) # argument region
+        
+        for row in range(0,self.xlength):
+            for col in range(0,self.ylength):
+                if self.board[row][col] == regionChar:
+                    adjacent_cells = []
+
+                    if row > 0:
+                        adjacent_cells.append(f"l{row-1 + 1}c{col + 1}")     # Top
+                        if col > 0:
+                            adjacent_cells.append(f"l{row-1 + 1}c{col-1 + 1}") # Left-Top
+                        if col < self.ylength - 1:
+                            adjacent_cells.append(f"l{row-1 + 1}c{col+1 + 1}") # Right-Top
+                    if row < self.xlength - 1:
+                        adjacent_cells.append(f"l{row+1 + 1}c{col + 1}")     # Bot
+                        if col > 0:
+                            adjacent_cells.append(f"l{row+1 + 1}c{col-1 + 1}") # Left-Bot
+                        if col < self.ylength - 1:
+                            adjacent_cells.append(f"l{row+1 + 1}c{col+1 + 1}") # Right-Bot
+                    if col > 0:
+                        adjacent_cells.append(f"l{row + 1}c{col-1 + 1}")     # Left
+                    if col < board.ylength - 1:
+                        adjacent_cells.append(f"l{row + 1}c{col+1 + 1}")     # Right
+
+      
+
+
+                    for elem in adjacent_cells:
+                        if elem not in adjacent_positions_list and self.board[int(elem[1])-1][int(elem[3])-1] not in regionChar: 
+                            adjacent_positions_list.append(elem) 
+        
+        return adjacent_positions_list
+
 
     def adjacent_values(self, row:int, col:int) -> list:
         """Devolve os valores das celulas adjacentes à região, em todas as direções, incluindo diagonais."""
-        #TODO
-        pass
+        
+        adjacent_values_list = []
+        regionChar = str(self.board[row-1][col-1]) # argument region
+        
+        for row in range(0,self.xlength):
+            for col in range(0,self.ylength):
+                if self.board[row][col] == regionChar:
+                    adjacent_cells = []
+
+                    if row > 0:
+                        adjacent_cells.append(self.board[row-1][col])     # Top
+                        if col > 0:
+                            adjacent_cells.append(self.board[row-1][col-1]) # Left-Top
+                        if col < self.ylength - 1:
+                            adjacent_cells.append(self.board[row-1][col+1]) # Right-Top
+                    if row < self.xlength - 1:
+                        adjacent_cells.append(self.board[row+1][col])     # Bot
+                        if col > 0:
+                            adjacent_cells.append(self.board[row+1][col-1]) # Left-Bot
+                        if col < self.ylength - 1:
+                            adjacent_cells.append(self.board[row+1][col+1]) # Right-Bot
+                    if col > 0:
+                        adjacent_cells.append(self.board[row][col-1])     # Left
+                    if col < board.ylength - 1:
+                        adjacent_cells.append(self.board[row][col+1])     # Right
+
+
+                    for elem in adjacent_cells:
+                        if elem not in adjacent_values_list and elem not in regionChar: 
+                            adjacent_values_list.append(elem) 
+        
+        return adjacent_values_list
     
     
     @staticmethod
@@ -147,3 +210,5 @@ if __name__ == "__main__":
                     ['4', '3', '3', '3', '3', '5']])
     a = board.board
     print(board.adjacent_regions(3))
+    print(board.adjacent_positions(2,2))
+    print(board.adjacent_values(4,4))
