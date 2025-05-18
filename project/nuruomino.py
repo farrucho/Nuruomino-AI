@@ -105,7 +105,6 @@ class Board:
         
         return adjacent_positions_list
 
-
     def adjacent_values(self, row:int, col:int) -> list:
         """Devolve os valores das celulas adjacentes à região, em todas as direções, incluindo diagonais."""
         
@@ -141,7 +140,9 @@ class Board:
         
         return adjacent_values_list
     
-    
+    def get_value(self, row:int, col:int) -> chr:
+        return self.board[row-1][col-1]
+
     def print_instance(self):
         """Imprime o tabuleiro com o formato descrito na secção 4.2."""
         
@@ -167,8 +168,7 @@ class Board:
 class Nuruomino(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        #TODO
-        pass 
+        self.initialBoard = board
 
     def actions(self, state: NuruominoState):
         """Retorna uma lista de ações que podem ser executadas a
