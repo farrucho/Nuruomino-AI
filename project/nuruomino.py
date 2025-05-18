@@ -142,6 +142,15 @@ class Board:
         return adjacent_values_list
     
     
+    def print_instance(self):
+        """Imprime o tabuleiro com o formato descrito na secção 4.2."""
+        
+        for y in range(0,self.ylength):
+            for x in range(0,self.xlength-1):
+                print(self.board[y][x],end="\t")
+            print(self.board[y][-1],end="\n")
+
+
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -201,7 +210,8 @@ if __name__ == "__main__":
     # [2, 3]
     # [1, 2, 4, 5]
 
-    # python nuruomino.py < ../projbase-02-05/sample-nuruominoboards/test-01.txt 
+    # python nuruomino.py < ../projbase-02-05/sample-nuruominoboards/test-01.txt
+    # para conseguir fazer -i 
     board = Board([['1', '1', '2', '2', '3', '3'],
                     ['1', '2', '2', '2', '3', '3'],
                     ['1', '3', '3', '2', '3', '5'],
@@ -210,5 +220,7 @@ if __name__ == "__main__":
                     ['4', '3', '3', '3', '3', '5']])
     a = board.board
     print(board.adjacent_regions(3))
-    print(board.adjacent_positions(2,2))
-    print(board.adjacent_values(4,4))
+    print(board.adjacent_positions(1,1))
+    print(board.adjacent_values(1,1))
+    
+    board.print_instance()
