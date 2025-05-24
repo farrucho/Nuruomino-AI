@@ -27,13 +27,19 @@ class NuruominoState:
 
     def __init__(self, board):
         self.board = board
-        self.id = Nuroumino.state_id
-        Nuroumino.state_id += 1
+        # WTF OQUE É ISTO DO ID?
+        # self.id = Nuroumino.state_id
+        # Nuroumino.state_id += 1
 
-    def __lt__(self, other):
-        """ Este método é utilizado em caso de empate na gestão da lista
-        de abertos nas procuras informadas. """
-        return self.id < other.id
+    # def __lt__(self, other):
+    #     """ Este método é utilizado em caso de empate na gestão da lista
+    #     de abertos nas procuras informadas. """
+    #     return self.id < other.id
+
+    def getBoard(self):
+        return self.board
+    
+
 
 class Board:
     """Representação interna de um tabuleiro do Puzzle Nuruomino."""
@@ -141,6 +147,7 @@ class Board:
         return adjacent_values_list
     
     def get_value(self, row:int, col:int) -> chr:
+        """Devole o valor do tabuleiro com base na posição dada"""
         return self.board[row-1][col-1]
 
     def print_instance(self):
@@ -151,6 +158,56 @@ class Board:
                 print(self.board[y][x],end="\t")
             print(self.board[y][-1],end="\n")
 
+    def available_regions(self) -> list:
+        """Devolve todas as regiões do tabuleiro."""
+        regions = []
+        for y in range(0,self.ylength):
+            for x in range(0,self.xlength):
+                current_elem = self.board[y][x]
+                if current_elem not in regions:
+                    regions.append(current_elem)
+        return regions
+    
+    def getAllActions(self) -> list:
+        "Devolve lista com espaço completo das ações"
+        # todas as combinacoes possiveis de peças+orientações
+        all_placements = []
+
+        # pecas dadas
+        pieces = [
+                ['L', [[1,0],[1,0],[1,1]]], # L
+                ['I', [[1],[1],[1],[1]]], # I
+                ['T', [[[1,0],[1,1],[1,0]]]], # T
+                ['S', [[1,0],[1,1],[0,1]]] # S
+                ]
+        
+        orientations = [] # manter histórico de orientações repetidas
+        for piece in pieces:
+            for i in range(1,4):
+                normal = [piece[0],np.rot90(piece[1],i).tolist()]
+                vertical = [piece[0],np.rot90(np.flipud(piece[1]),i).tolist()]
+                horizontal = [piece[0],np.rot90(np.fliplr(piece[1]),i).tolist()]
+                
+                if normal[1] not in orientations:
+                    all_placements.append(normal)
+                    orientations.append(normal[1])
+                if vertical[1] not in orientations:
+                    all_placements.append(vertical)
+                    orientations.append(vertical[1])
+                if horizontal[1] not in orientations:
+                    all_placements.append(horizontal)
+                    orientations.append(horizontal[1])
+        return all_placements
+        
+
+    # def get_region(self, region:int):
+    #     """Devolve a forma da região."""
+        # for y in range(0,self.ylength):
+        #     for x in range(0,self.xlength):
+        #         current_elem = self.board[y][x]
+        #         if current_elem not in regions:
+        #             regions.append(current_elem)
+        # return regions
 
     @staticmethod
     def parse_instance():
@@ -166,6 +223,8 @@ class Board:
 
 
 class Nuruomino(Problem):
+    # estamos com um problema que é como é que o computador sabe distinguir a área mesmo em si que esta preenhcida, tem que haver uma array que de tracking das regioes preenchidas e com que peça!!!! isto pode ser um problema a posteriori
+    
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         self.initialBoard = board
@@ -173,15 +232,49 @@ class Nuruomino(Problem):
     def actions(self, state: NuruominoState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        #TODO
-        pass 
+        stateBoard = state.getBoard()
+        arrayBoard = stateBoard.board
+
+        # action -> (REGION, TETROMINO_CHAR, ORIENTATION)
+        available_regions = stateBoard.available_regions()
+
+        all_actions = stateBoard.getAllActions()
+
+        possible_actions = []
+        for y in range(0,stateBoard.ylength):
+            for x in range(0,stateBoard.xlength):
+                if arrayBoard[y][x].isdigit():
+                    # se a célula já está preenchida não vale a pena procurar mais
+                    for piece_char, orientation in all_actions:
+                        piece = np.array(orientation)
+                        if piece.ndim == 3:
+                            # fix para nao ficar com np.array de 3 dimensões, nos casos por exemplo [1,0],[1,0],[1,1] ou [1] [1] [1] [1]
+                            piece = piece.squeeze()
+
+                        if y + piece.shape[0] <= arrayBoard.shape[0] and x + piece.shape[1] <= arrayBoard.shape[1]:
+                            # se a peça encaixa no tabuleiro
+                            sub_board = arrayBoard[y : y + piece.shape[0], x : x + piece.shape[1]]
+
+                            mask = (piece == 1)
+                                        
+                            # print("debugging")
+                            # print(y,x)
+                            # print(mask)
+                            # print(sub_board)
+                            # print(piece)
+            
+                            if np.all(sub_board[mask] == arrayBoard[y][x]) and [arrayBoard[y][x], piece_char, orientation] not in possible_actions:
+                                possible_actions.append([arrayBoard[y][x], piece_char, orientation])
+        return possible_actions
+
+                
+        
 
     def result(self, state: NuruominoState, action):
         """Retorna o estado resultante de executar a, 'action' sobre
        , 'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-
         #TODO
         pass 
         
@@ -224,3 +317,10 @@ if __name__ == "__main__":
     print(board.adjacent_values(1,1))
     
     board.print_instance()
+    print(board.get_value(3,1))
+    print(board.available_regions())
+
+    problem = Nuruomino(board)
+    initial_state = NuruominoState(board)
+    for e in sorted(problem.actions(initial_state),key=lambda x:x[0]):
+        print(e)
